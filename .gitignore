@@ -1,0 +1,5 @@
+data/checkpoint/*
+data/interpolate/*
+data/output/*
+
+*.py[cod]
