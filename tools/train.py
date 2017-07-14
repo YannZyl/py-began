@@ -56,7 +56,7 @@ class Trainer:
             
             # save session
             if step % self.save_step == 0 and step != 0:
-                self.net.save_session()
+                self.net.save_session(step)
         coord.request_stop()
         coord.join(thread)
     
@@ -65,4 +65,4 @@ class Trainer:
         images = self.net.session.run(self.net.S, {self.net.z: noise})
         # save images into disk
         im_name = 'generate_{}'.format(global_step)
-        save_images(images, self.out_dir, im_name)
+        save_images(images, self.out_dir, im_name, num_per_rows=4)

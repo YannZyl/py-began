@@ -5,9 +5,11 @@ import numpy as np
 parser = argparse.ArgumentParser()
 parser.add_argument('--image_scale', type=int, default=64, help='Image scale default 64')
 parser.add_argument('--noise_scale', type=int, default=64, help='Noise scale default 64')
-parser.add_argument('--batch_size', type=int, default=32,  help='Number of batch size')
+parser.add_argument('--batch_size', type=int, default=16,  help='Number of batch size')
 parser.add_argument('--hidden_num', type=int, default=128, help='Hidden number in G&D network')
 
+parser.add_argument('--beta1', type=float, default=0.5)
+parser.add_argument('--beta2', type=float, default=0.999)
 parser.add_argument('--gamma', type=float, default=0.5)
 parser.add_argument('--lambda_k', type=float, default=0.001)
 parser.add_argument('--d_lr', type=float, default=0.00008)

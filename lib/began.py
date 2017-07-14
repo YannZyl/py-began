@@ -12,6 +12,8 @@ class BEGAN:
         self.repeat_num = int(np.log2(self.x_dim)-2)
         self.batch_size = args.batch_size
         
+	self.beta1 = args.beta1
+	self.beta2 = args.beta2
         self.gamma = args.gamma
         self.lambda_k = args.lambda_k
         self.d_lr = args.d_lr
@@ -60,14 +62,15 @@ class BEGAN:
             g_optimizer = tf.train.AdamOptimizer(g_lr).minimize(self.g_loss, var_list=var_G)
         # Train measure item
         with tf.name_scope('Measure'):
-            balance = self.gamma * d_loss_real - d_loss_fake
+            balance = self.gamma * d_loss_real - self.g_loss
             self.measure = d_loss_real + tf.abs(balance)
         # update items, including learning rate update and kt update 
         with tf.name_scope('Update'):
             with tf.control_dependencies([d_optimizer, g_optimizer]):
-                self.d_lr_update = tf.assign(d_lr, tf.maximum(d_lr*0.5, self.d_lr_low_boundary), name='d_lr_update')
-                self.g_lr_update = tf.assign(g_lr, tf.maximum(g_lr*0.5, self.g_lr_low_boundary), name='g_lr_update')
                 self.k_t_update =  tf.assign(self.k_t, tf.clip_by_value(self.k_t+self.lambda_k*balance, 0, 1), name='kt_update')
+
+        self.d_lr_update = tf.assign(d_lr, tf.maximum(d_lr*0.5, self.d_lr_low_boundary), name='d_lr_update')
+        self.g_lr_update = tf.assign(g_lr, tf.maximum(g_lr*0.5, self.g_lr_low_boundary), name='g_lr_update')
             
     def build_interp_model(self):
         # feed dict, couple image and noize
@@ -95,8 +98,8 @@ class BEGAN:
         else:
             self.session.run(tf.global_variables_initializer())
     
-    def save_session(self):
-        self.saver.save(self.session, 'data/checkpoint/began.ckpt')
+    def save_session(self, global_step):
+        self.saver.save(self.session, 'data/checkpoint/began.ckpt', global_step=global_step)
         
     def generator(self, z, reuse=None):
         with tf.variable_scope('G', reuse=reuse) as vs:
