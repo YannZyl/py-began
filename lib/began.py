@@ -38,7 +38,7 @@ class BEGAN:
             self.x = data_loader(self.data_dir, self.batch_size, self.x_dim)
             self.z = tf.random_uniform([self.batch_size,self.z_dim], minval=-1.0, maxval=1.0, name='noise')           
         # reconstruction/output of G and D in the training step
-        with tf.variable_scope('Outputs'):
+        with tf.name_scope('Outputs'):
             G_, var_G = self.generator(self.z)
             D_, var_D = self.discriminator(G_)
             D , _ = self.discriminator(self.x, reuse=True)
@@ -77,7 +77,7 @@ class BEGAN:
         with tf.name_scope('Data_couple'):
             self.cz = tf.Variable(tf.zeros([self.batch_size,self.z_dim]), name='interp_noise')
         # reconstruction/output of G in the interpolating step
-        with tf.variable_scope('Outputs'):
+        with tf.name_scope('Outputs'):
             cs, _ = self.generator(self.cz, reuse=True)
         # build G loss function 
         with tf.name_scope('Loss_I'):

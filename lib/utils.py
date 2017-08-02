@@ -14,15 +14,16 @@ def save_images(images, out_dir, im_name, num_per_rows=8):
     n, h, w, c = images.shape
     rows = int(np.ceil(n/num_per_rows))
     # fill image into grid
-    recon_images = np.zeros([rows*h, num_per_rows*w, c])
+    images = (images + 1.0) * 127.5
+    images = np.clip(np.array(images), 0, 255).astype(np.uint8)
+    recon_images = np.zeros([rows*h, num_per_rows*w, c], dtype=np.uint8)
     for idx, image in enumerate(images):
         r = idx // num_per_rows
         c = idx %  num_per_rows
         recon_images[r*h:(r+1)*h, c*w:(c+1)*w, :] = image
     # denormalize images
-    recon_images = (recon_images + 1.0) * 127.5
-    recon_images = np.clip(np.array(recon_images,np.uint8), 0, 255)
-    recon_images = cv2.cvtColor(recon_images, cv2.COLOR_BGR2RGB)
+    
+    recon_images = cv2.cvtColor(recon_images, cv2.COLOR_RGB2BGR)
     cv2.imwrite(os.path.join(out_dir,'{}.jpg'.format(im_name)), recon_images)
     
 def slerp(val, low, high):
