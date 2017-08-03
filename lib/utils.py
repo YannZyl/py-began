@@ -20,9 +20,7 @@ def save_images(images, out_dir, im_name, num_per_rows=8):
     for idx, image in enumerate(images):
         r = idx // num_per_rows
         c = idx %  num_per_rows
-        recon_images[r*h:(r+1)*h, c*w:(c+1)*w, :] = image
-    # denormalize images
-    
+        recon_images[r*h:(r+1)*h, c*w:(c+1)*w, :] = image 
     recon_images = cv2.cvtColor(recon_images, cv2.COLOR_RGB2BGR)
     cv2.imwrite(os.path.join(out_dir,'{}.jpg'.format(im_name)), recon_images)
     

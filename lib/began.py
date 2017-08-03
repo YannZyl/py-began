@@ -75,13 +75,14 @@ class BEGAN:
     def build_interp_model(self):
         # feed dict, couple image and noize
         with tf.name_scope('Data_couple'):
-            self.cz = tf.Variable(tf.zeros([self.batch_size,self.z_dim]), name='interp_noise')
+            self.cx = tf.placeholder(tf.float32, [2,self.x_dim,self.x_dim,3], name='interp_image')
+            self.cz = tf.Variable(tf.zeros([2,self.z_dim]), name='interp_noise')
         # reconstruction/output of G in the interpolating step
         with tf.name_scope('Outputs'):
             cs, _ = self.generator(self.cz, reuse=True)
         # build G loss function 
         with tf.name_scope('Loss_I'):
-            self.i_loss = tf.reduce_mean(tf.abs(self.x-cs))
+            self.i_loss = tf.reduce_mean(tf.abs(self.cx-cs))
         # I optimizer
         with tf.name_scope('Optim_I'):
             i_optimizer = tf.train.AdamOptimizer(self.i_lr).minimize(self.i_loss, var_list=[self.cz])
