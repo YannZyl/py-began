@@ -23,7 +23,7 @@ parser.add_argument('--max_step', type=int, default=300000)
 parser.add_argument('--log_step', type=int, default=50)
 parser.add_argument('--save_step', type=int, default=5000)
 parser.add_argument('--lr_update_step', type=int, default=100000)
-parser.add_argument('--interp_step', type=int, default=2000)
+parser.add_argument('--interp_step', type=int, default=4000)
 
 parser.add_argument('--mode', type=int, default=0, choices=[0,1,2,3], 
                         help='Run mode, 0: network trainint, \

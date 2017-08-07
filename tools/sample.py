@@ -26,10 +26,10 @@ class Sampler:
         if not os.path.exists(self.image1):
             print 'Image1: {} not exist.'.format(self.image1)
             return False
-        if self.mode == 1 and self.image2 is None:
+        if self.mode == 2 and self.image2 is None:
             print 'Image2 has not entered.'
             return False
-        if self.mode == 1 and not os.path.exists(self.image2):
+        if self.mode == 2 and not os.path.exists(self.image2):
             print 'image2: {} not exist.'.format(self.image2)
             return False
         return True
@@ -61,28 +61,22 @@ class Sampler:
         # bp map real image to noize
         for step in trange(self.interp_step, desc='Training progress'):
             i_loss, _ = self.net.session.run([self.net.i_loss,self.net.clip_noise], {self.net.cx: batch_image})
-            print("[{}/{}] Loss_I: {:.6f}".format(step, self.interp_step, i_loss))
+	    if step % 50 == 0:
+            	print("[{}/{}] Loss_I: {:.6f}".format(step, self.interp_step, i_loss))
         
         noise = self.net.session.run(self.net.cz, feed_dict={self.net.cx: batch_image})
         #noise1, noise2 = self.net.session.run(self.net.cz)
         noise1, noise2 = np.split(noise, 2, 0)
-        noise1 = np.squeeze(noise1)
-        noise2 = np.squeeze(noise2)
+        noise1 = np.concatenate([noise1]*self.net.batch_size,0)
+        noise2 = np.concatenate([noise2]*self.net.batch_size,0)
         # interplate between noise
         decodes = []
         decodes.append(batch_image[0])
-        print noise1.shape, noise1
-        print noise2.shape, noise2
         for idx, ratio in enumerate(np.linspace(0, 1, 10)):
             z = np.stack([slerp(ratio, r1, r2) for r1, r2 in zip(noise1, noise2)])
-	    z = np.expand_dims(z,0)
-            z_double = np.concatenate([z]*self.net.batch_size, 0)
-            im = self.net.session.run(self.net.S, {self.net.z: z_double})
-            #im = np.split(im, 2, 0)[0]
+            im = self.net.session.run(self.net.S, {self.net.z: z})
             decodes.append(im[0])
         decodes.append(batch_image[1])
-        #decodes = np.array(decodes).transpose(1,0,2,3,4)
-        #decodes = np.reshape(decodes, [-1,h,w,c])
         decodes = np.array(decodes)
         # save images
         im_name = 'interpolate'
